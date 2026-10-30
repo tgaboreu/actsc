@@ -1,0 +1,129 @@
+# actsc configuration file
+# /etc/actsc/actsc.conf
+#
+# actsc - Automated Computer Time Service Client
+# Synchronises the system clock via a NIST-compatible ACTS server.
+#
+# All options can be overridden on the command line.
+# Run 'actsc --help' for details.
+#
+# ---------------------------------------------------------------
+
+# Modem mode: sip or tty
+# sip = software V.22bis modem over SIP / RTP (spandsp, no hardware)
+# tty = physical Hayes-compatible modem on a serial port
+#
+mode = sip
+
+# ---------------------------------------------------------------
+# SIP mode options
+# ---------------------------------------------------------------
+
+# SIP PBX or provider that routes the call, host[:port].
+# Optional when 'number' is a full sip: URI (direct call).
+registrar = pbx.example.com
+
+# SIP account used to authenticate the call (digest auth)
+username = actsc
+password = changeme
+
+# What to dial: an extension / phone number routed by the registrar,
+# or a full URI such as sip:time@203.0.113.5:5060
+number = 1234
+
+# Local SIP port and RTP media port range (UDP)
+# sip_port  = 5062
+# rtp_ports = 10100-10199
+
+# Local address for SIP and RTP.  Default: the address that routes
+# to the registrar (or the default route).  Set it on hosts with
+# several interfaces if the automatic choice is wrong.
+# local_ip = 192.0.2.5
+
+# Public address to advertise behind NAT (optional)
+# public_ip = 203.0.113.7
+
+# ---------------------------------------------------------------
+# TTY mode options
+# (required when mode = tty)
+# ---------------------------------------------------------------
+
+# Serial device path
+# tty = /dev/ttyUSB0
+
+# Comma-separated AT initialisation commands sent before dialling.
+# Each command is sent individually and must respond with OK.
+# Common examples:
+#   AT        - basic attention / reset test
+#   ATZ       - full modem reset
+#   ATX3      - disable dial-tone detection (useful on VoIP lines)
+#   ATE0      - disable echo
+#   ATM0      - disable speaker
+#   ATB0      - CCITT (V.22bis) modulation (some modems)
+#
+# at_init = AT,ATZ,ATX3,ATE0,ATM0
+
+# Dial command prefix: ATDT (tone) or ATDP (pulse)
+# (optional, default: ATDT)
+# dial_prefix = ATDT
+
+# Serial port baud rate for the modem command port.
+# This is the DTE speed, not the line speed.
+# Supported: 1200 2400 4800 9600 19200 38400 57600 115200
+# (optional, default: 2400)
+# tty_baud = 2400
+
+# Phone number to dial (the same "number" key as in SIP mode)
+# number = 5551234
+
+# ---------------------------------------------------------------
+# Common options
+# ---------------------------------------------------------------
+
+# Run as a service (poll loop)?
+# yes = loop forever, sleeping poll_interval seconds between syncs
+# no  = one-shot: sync once and exit (default)
+#
+# service_mode = no
+
+# Seconds between synchronisation attempts in service mode.
+# Minimum: 60
+# (optional, default: 3600)
+#
+# poll_interval = 3600
+
+# Number of valid on-time markers (OTMs) required before
+# the clock is set.  Higher values improve accuracy but
+# require a longer connection.
+# Range: 1 to 16
+# (optional, default: 10)
+#
+# min_samples = 10
+
+# Maximum accepted clock offset in seconds.
+# If the computed correction exceeds this value, actsc will
+# refuse to set the clock and log an error.
+# (optional, default: 300)
+#
+# max_offset_sec = 300
+
+# Abort a call after this many seconds if not enough samples
+# have been collected.
+# (optional, default: 60)
+#
+# call_timeout = 60
+
+# Seconds to wait for CONNECT after dialling (TTY mode) or
+# for the SIP call to be answered (SIP mode).
+# (optional, default: 45)
+#
+# dial_timeout = 45
+
+# Dry run: parse and log ACTS strings but do NOT set the clock.
+# Useful for testing without root privileges.
+# (optional, default: no)
+#
+# dry_run = no
+
+# Copyright (C) 2026 Gabor Temesi <info@tgabor.eu>
+# SPDX-License-Identifier: GPL-3.0-or-later

@@ -1,0 +1,16 @@
+# Copyright (C) 2026 Gabor Temesi <info@tgabor.eu>
+# SPDX-License-Identifier: GPL-3.0-or-later
+/var/log/actsc/connections /var/log/actsc/messages /var/log/actsc/sync {
+    weekly
+    rotate 12
+    compress
+    delaycompress
+    missingok
+    notifempty
+    create 0640 actsc actsc
+    dateext
+    dateformat -%Y-%m-%d
+    postrotate
+        pidof actsc | xargs --no-run-if-empty kill -HUP 2>/dev/null || true
+    endscript
+}

@@ -1,0 +1,92 @@
+# Copyright (C) 2026 Gabor Temesi <info@tgabor.eu>
+# SPDX-License-Identifier: GPL-3.0-or-later
+
+[Unit]
+Description=ACTS Time Service Client (V.22bis clock sync)
+Documentation=https://time.tgabor.eu
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/sbin/actsc --config /etc/actsc/actsc.conf --service
+Restart=on-failure
+RestartSec=60s
+
+# ---------------------------------------------------------------
+# Identity
+# ---------------------------------------------------------------
+User=actsc
+Group=actsc
+SupplementaryGroups=dialout
+
+# ---------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=actsc
+
+# ---------------------------------------------------------------
+# Filesystem access
+# ---------------------------------------------------------------
+ProtectSystem=strict
+ReadWritePaths=/var/log/actsc
+ReadOnlyPaths=/etc/actsc
+PrivateTmp=true
+
+# ---------------------------------------------------------------
+# Privilege restrictions
+#
+# clock_settime() requires CAP_SYS_TIME.
+# actsc needs this capability to actually set the system clock.
+# The capability is dropped after use via the ambient set so
+# it is available to the unprivileged actsc user.
+# ---------------------------------------------------------------
+NoNewPrivileges=false
+CapabilityBoundingSet=CAP_SYS_TIME
+AmbientCapabilities=CAP_SYS_TIME
+
+RestrictSUIDSGID=true
+
+# ---------------------------------------------------------------
+# System call filtering
+# ---------------------------------------------------------------
+SystemCallFilter=@system-service clock_settime
+SystemCallErrorNumber=EPERM
+
+# ---------------------------------------------------------------
+# Namespace and kernel restrictions
+# ---------------------------------------------------------------
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RestrictRealtime=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectKernelLogs=true
+
+# Clock protection is intentionally NOT set — actsc must be
+# able to adjust the system clock.
+# ProtectClock=true   <-- deliberately omitted
+
+ProtectControlGroups=true
+ProtectHostname=true
+RemoveIPC=true
+
+# TTY mode needs access to the serial device.
+# When using SIP mode only, PrivateDevices=true is safe.
+# When using TTY mode, comment out PrivateDevices and use
+# DeviceAllow instead:
+   PrivateDevices=false
+   DeviceAllow=/dev/ttyUSB0 rw
+#   DeviceAllow=/dev/ttyS0 rw
+#PrivateDevices=true
+
+# ---------------------------------------------------------------
+# Network
+# ---------------------------------------------------------------
+RestrictAddressFamilies=AF_INET AF_INET6
+
+[Install]
+WantedBy=multi-user.target
